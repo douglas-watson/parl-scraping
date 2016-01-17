@@ -58,12 +58,20 @@ df[df$id == "2895",]
 
 # D'après question de @munsterma sur Twitter : combien de temps les gens restent en fonction de leur âge ?
 age_at_entry <- aggregate(entry - birthday ~ id, data = df, min)
-age_duree <- merge(age_at_entry, days_in_total)
-colnames(age_duree) <- c("id", "age", "difference")
+age_at_end <- aggregate(leaving - birthday ~ id, data = df, max)
+age_duree <- merge(merge(age_at_entry, age_at_end), days_in_total)
+colnames(age_duree) <- c("id", "age", "fin", "difference")
 age_duree$age <- as.numeric(age_duree$age)/365
+age_duree$fin <- as.numeric(age_duree$fin)/365
 age_duree$difference <- as.numeric(age_duree$difference)/365
 
-g <- ggplot(age_duree, aes(x=difference,y=age)) + geom_point(size = 1) + ylab("Âge au moment de l'élection") + xlab("Durée du mandat") + ggtitle("Conseil national et Conseil des États")
+g <- ggplot(age_duree, aes(x=difference,y=age)) + geom_point(size = 1) + ylab("Âge au moment de l'élection") + xlab("Durée du mandat") + ggtitle("Conseil national et Conseil des États") + ylim(20, 90)
 png("age_vs_duree.png", width = 960, height = 480)
 g
 dev.off()
+
+g <- ggplot(age_duree, aes(x=difference,y=fin)) + geom_point(size = 1) + ylab("Âge au moment du départ") + xlab("Durée du mandat") + ggtitle("Conseil national et Conseil des États") + ylim(20, 90)
+png("age_vs_depart.png", width = 960, height = 480)
+g
+dev.off()
+
